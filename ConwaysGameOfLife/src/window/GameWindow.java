@@ -2,6 +2,7 @@ package window;
 
 import javax.swing.JPanel;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Insets;
 
@@ -21,12 +22,17 @@ public class GameWindow extends JPanel implements ActionListener{
 	private JButton bEvolveOneStage;
 	private JButton bStart;
 	private JButton bStop;
+	private JButton bClear;
 	private JLabel lblStageDelaySeconds;
 	private JLabel lblStage;
 	private JLabel lblStageNr;
 	
+	private boolean[][] cellArrayStatus = new boolean[50][50]; 
 	private int stage = 0;
+	private int perLifeCells;
+	private int delayPerStage;
 	private boolean evolving = false;
+	private Color defaultButtonColor = new JButton().getBackground();
 	
 	public GameWindow() {
 		setupCellArray();
@@ -45,6 +51,7 @@ public class GameWindow extends JPanel implements ActionListener{
 				bCellArray[i][r] = new JButton("");
 				bCellArray[i][r].setBounds(i*scale, r*scale, width, height);
 				bCellArray[i][r].setContentAreaFilled(false);
+				bCellArray[i][r].setOpaque(true);
 				bCellArray[i][r].setMargin(new Insets(0, 0, 0, 0));
 				bCellArray[i][r].addActionListener(this);
 				add(bCellArray[i][r]);
@@ -84,6 +91,12 @@ public class GameWindow extends JPanel implements ActionListener{
 		bStop.setMargin(new Insets(0, 0, 0, 0));
 		add(bStop);
 		
+		bClear = new JButton("Clear");
+		bClear.setBounds(1069, 250, 121, 23);
+		bClear.addActionListener(this);
+		bClear.setMargin(new Insets(0,0,0,0));
+		add(bClear);
+		
 		lblStageDelaySeconds = new JLabel("Stage delay seconds");
 		lblStageDelaySeconds.setBounds(1070, 168, 120, 14);
 		add(lblStageDelaySeconds);
@@ -102,9 +115,137 @@ public class GameWindow extends JPanel implements ActionListener{
 		lblStageNr.setBounds(1126, 224, 46, 14);
 		add(lblStageNr);
 	}
+	
+	public void evolveOneStage(){
+		int neigboursAm = 0;
+		boolean[][] tempArray = cellArrayStatus;
+		for(int i = 0; i<cellArrayStatus.length; i++){
+			for(int r = 0; r<cellArrayStatus[i].length; r++){
+				neigboursAm = getNeigbours(i, r);
+				if(!cellArrayStatus[i][r] && neigboursAm == 3){
+					tempArray[i][r] = true;
+				}else if(cellArrayStatus[i][r] && neigboursAm < 2){
+					tempArray[i][r] = false;
+				}else if(cellArrayStatus[i][r] && neigboursAm > 3){
+					tempArray[i][r] = false;
+				}
+			}
+		}
+		cellArrayStatus = tempArray;
+		updateBoard();
+	}
+	
+	public int getNeigbours(int i, int r){
+		int am = 0;
+		int le = cellArrayStatus.length;
+		System.out.println(i+" "+r);
+		if(i-1 >= 0 && r-1 >= 0){
+			if(cellArrayStatus[i-1][r-1]){
+				am++;
+			}
+		}
+		if(i-1 >= 0){
+			if(cellArrayStatus[i-1][r]){
+				am++;
+			}
+		}
+		if(i-1 >= 0 && r+1 < le){
+			if(cellArrayStatus[i-1][r+1]){
+				am++;
+			}
+		}
+		if(r+1 < le){
+			if(cellArrayStatus[i][r+1]){
+				am++;
+			}
+		}
+		if(i+1 < le && r+1 < le){
+			if(cellArrayStatus[i+1][r+1]){
+				am++;
+			}
+		}
+		if(i+1 < le){
+			if(cellArrayStatus[i+1][r]){
+				am++;
+			}
+		}
+		if(i+1 < le && r-1 >= 0){
+			if(cellArrayStatus[i+1][r-1]){
+				am++;
+			}
+		}
+		if(r-1 >= 0){
+			if(cellArrayStatus[i][r-1]){
+				am++;
+			}
+		}
+		return am;
+	}
+	
+	public void start(){
+		
+	}
+	
+	public void createRandomCells(){
+		perLifeCells = Integer.parseInt(tfPercentageLifeCells.getText());
+		System.out.println(perLifeCells);
+		for(int i = 0; i<cellArrayStatus.length; i++){
+			for(int r = 0; r<cellArrayStatus[i].length; r++){
+				if(randomInteger(1, 100) <= perLifeCells){
+					cellArrayStatus[i][r] = true;
+				}else{
+					cellArrayStatus[i][r] = false;
+				}
+			}
+		}
+		updateBoard();
+	}
+	
+	public void clearBoard(){
+		for(int i = 0; i<cellArrayStatus.length; i++){
+			for(int r = 0; r<cellArrayStatus[i].length; r++){
+				cellArrayStatus[i][r] = false;
+			}
+		}
+		updateBoard();
+	}
+	
+	public void updateBoard(){
+		for(int i = 0; i<bCellArray.length; i++){
+			for(int r = 0; r<bCellArray[i].length; r++){
+				if(cellArrayStatus[i][r]){
+					bCellArray[i][r].setBackground(Color.BLACK);
+				}else{
+					bCellArray[i][r].setBackground(defaultButtonColor);
+				}
+			}
+		}
+	}
 
+	public int randomInteger(int min, int max){						//Random integer between min max
+		return min + (int)(Math.random() * ((max - min) + 1));
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		
+		if(e.getSource() == bStart){
+			start();
+		}else if(e.getSource() == bStop){
+			System.out.println("test2");
+		}else if(e.getSource() == bEvolveOneStage){
+			evolveOneStage();
+		}else if(e.getSource() == bRandomCells){
+			createRandomCells();
+		}else if(e.getSource() == bClear){
+			clearBoard();
+		}else{
+			for(int i = 0; i<bCellArray.length; i++){
+				for(int r = 0; r<bCellArray[i].length; r++){
+					if(e.getSource() == bCellArray[i][r]){
+						
+					}
+				}
+			}
+		}
 	}
 }
