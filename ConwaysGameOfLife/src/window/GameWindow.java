@@ -23,6 +23,7 @@ public class GameWindow extends JPanel implements ActionListener{
 	private JButton bStart;
 	private JButton bStop;
 	private JButton bClear;
+	private JButton bShowNeigbours;
 	private JLabel lblStageDelaySeconds;
 	private JLabel lblStage;
 	private JLabel lblStageNr;
@@ -32,6 +33,7 @@ public class GameWindow extends JPanel implements ActionListener{
 	private int perLifeCells;
 	private int delayPerStage;
 	private boolean evolving = false;
+	private boolean showNeigbourText = false;
 	private Color defaultButtonColor = new JButton().getBackground();
 	
 	public GameWindow() {
@@ -97,6 +99,12 @@ public class GameWindow extends JPanel implements ActionListener{
 		bClear.setMargin(new Insets(0,0,0,0));
 		add(bClear);
 		
+		bShowNeigbours = new JButton("Show Neighbours");
+		bShowNeigbours.setBounds(1069, 300, 121, 23);
+		bShowNeigbours.addActionListener(this);
+		bShowNeigbours.setMargin(new Insets(0,0,0,0));
+		add(bShowNeigbours);
+		
 		lblStageDelaySeconds = new JLabel("Stage delay seconds");
 		lblStageDelaySeconds.setBounds(1070, 168, 120, 14);
 		add(lblStageDelaySeconds);
@@ -117,12 +125,13 @@ public class GameWindow extends JPanel implements ActionListener{
 	}
 	
 	public void evolveOneStage(){
+		evolving = true;
 		int neigboursAm = 0;
 		boolean[][] tempArray = cellArrayStatus;
 		for(int i = 0; i<cellArrayStatus.length; i++){
 			for(int r = 0; r<cellArrayStatus[i].length; r++){
 				neigboursAm = getNeigbours(i, r);
-				if(!cellArrayStatus[i][r] && neigboursAm == 3){
+				if(cellArrayStatus[i][r] == false && neigboursAm == 3){
 					tempArray[i][r] = true;
 				}else if(cellArrayStatus[i][r] && neigboursAm < 2){
 					tempArray[i][r] = false;
@@ -138,7 +147,6 @@ public class GameWindow extends JPanel implements ActionListener{
 	public int getNeigbours(int i, int r){
 		int am = 0;
 		int le = cellArrayStatus.length;
-		System.out.println(i+" "+r);
 		if(i-1 >= 0 && r-1 >= 0){
 			if(cellArrayStatus[i-1][r-1]){
 				am++;
@@ -183,7 +191,7 @@ public class GameWindow extends JPanel implements ActionListener{
 	}
 	
 	public void start(){
-		
+	
 	}
 	
 	public void createRandomCells(){
@@ -207,7 +215,35 @@ public class GameWindow extends JPanel implements ActionListener{
 				cellArrayStatus[i][r] = false;
 			}
 		}
+		evolving = false;
 		updateBoard();
+	}
+	
+	public void showNeigbours(){
+		showNeigbourText = !showNeigbourText;
+		if(showNeigbourText){
+			updateNeigbourText();
+		}else{
+			for(int i = 0; i<bCellArray.length; i++){
+				for(int r = 0; r<bCellArray[i].length; r++){
+					bCellArray[i][r].setText("");
+				}
+			}
+		}
+	}
+	
+	public void updateNeigbourText(){
+		for(int i = 0; i<bCellArray.length; i++){
+			for(int r = 0; r<bCellArray[i].length; r++){
+				if(cellArrayStatus[i][r]){
+					bCellArray[i][r].setForeground(Color.WHITE);
+					bCellArray[i][r].setText(String.valueOf(getNeigbours(i, r)));
+				}else{
+					bCellArray[i][r].setForeground(Color.BLACK);
+					bCellArray[i][r].setText(String.valueOf(getNeigbours(i, r)));
+				}
+			}
+		}
 	}
 	
 	public void updateBoard(){
@@ -219,6 +255,9 @@ public class GameWindow extends JPanel implements ActionListener{
 					bCellArray[i][r].setBackground(defaultButtonColor);
 				}
 			}
+		}
+		if(showNeigbourText){
+			updateNeigbourText();
 		}
 	}
 
@@ -238,14 +277,20 @@ public class GameWindow extends JPanel implements ActionListener{
 			createRandomCells();
 		}else if(e.getSource() == bClear){
 			clearBoard();
+		}else if(e.getSource() == bShowNeigbours){
+			showNeigbours();
 		}else{
-			for(int i = 0; i<bCellArray.length; i++){
-				for(int r = 0; r<bCellArray[i].length; r++){
-					if(e.getSource() == bCellArray[i][r]){
-						
+			if(!evolving){
+				for(int i = 0; i<bCellArray.length; i++){
+					for(int r = 0; r<bCellArray[i].length; r++){
+						if(e.getSource() == bCellArray[i][r]){
+							cellArrayStatus[i][r] = !cellArrayStatus[i][r];
+							updateBoard();
+						}
 					}
 				}
 			}
+			
 		}
 	}
 }
