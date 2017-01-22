@@ -8,6 +8,10 @@ import java.awt.Insets;
 
 import javax.swing.JButton;
 import javax.swing.JTextField;
+import javax.swing.Timer;
+
+import window.GameWindow.Blinker;
+
 import javax.swing.JLabel;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -35,6 +39,8 @@ public class GameWindow extends JPanel implements ActionListener{
 	private boolean evolving = false;
 	private boolean showNeigbourText = false;
 	private Color defaultButtonColor = new JButton().getBackground();
+	private int timeDelay = 2000;
+	private Timer evolveTimer = new Timer(timeDelay, new Blinker());
 	
 	public GameWindow() {
 		setupCellArray();
@@ -125,14 +131,12 @@ public class GameWindow extends JPanel implements ActionListener{
 	}
 	
 	public void evolveOneStage(){
+		long startTime = System.currentTimeMillis();
 		evolving = true;
 		int neigboursAm = 0;
 		boolean[][] tempArray = new boolean[50][50];
 		for(int i = 0; i<cellArrayStatus.length; i++){
 			for(int r = 0; r<cellArrayStatus[i].length; r++){
-				System.out.println(i+" "+r);
-				System.out.println(getNeigbours(i, r));
-				System.out.println(getNeigbours(0, 1));
 				neigboursAm = getNeigbours(i, r);
 				if(cellArrayStatus[i][r] == false && neigboursAm == 3){
 					tempArray[i][r] = true;
@@ -150,6 +154,7 @@ public class GameWindow extends JPanel implements ActionListener{
 		stage++;
 		lblStageNr.setText(String.valueOf(stage));
 		updateBoard();
+		System.out.println("Time: "+(System.currentTimeMillis()-startTime));
 	}
 	
 	public int getNeigbours(int i, int r){
@@ -199,7 +204,12 @@ public class GameWindow extends JPanel implements ActionListener{
 	}
 	
 	public void start(){
+		evolveTimer.setDelay(Integer.parseInt(tfDelayPerStage.getText()));
+		evolveTimer.start();
+	}
 	
+	public void stop(){
+		evolveTimer.stop();
 	}
 	
 	public void createRandomCells(){
@@ -278,7 +288,7 @@ public class GameWindow extends JPanel implements ActionListener{
 		if(e.getSource() == bStart){
 			start();
 		}else if(e.getSource() == bStop){
-			System.out.println("test2");
+			stop();
 		}else if(e.getSource() == bEvolveOneStage){
 			evolveOneStage();
 		}else if(e.getSource() == bRandomCells){
@@ -301,4 +311,11 @@ public class GameWindow extends JPanel implements ActionListener{
 			
 		}
 	}
+	
+	class Blinker implements ActionListener{
+		
+        public void actionPerformed(ActionEvent e) {
+        	evolveOneStage();
+        }
+    }
 }
