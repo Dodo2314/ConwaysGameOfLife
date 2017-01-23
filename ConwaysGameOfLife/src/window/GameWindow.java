@@ -7,9 +7,11 @@ import java.awt.Dimension;
 import java.awt.Insets;
 
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JTextField;
 import javax.swing.Timer;
 
+import presets.PresetHelper;
 import window.GameWindow.Blinker;
 
 import javax.swing.JLabel;
@@ -21,6 +23,7 @@ public class GameWindow extends JPanel implements ActionListener{
 	private JButton[][] bCellArray = new JButton[50][50];
 	private JTextField tfPercentageLifeCells;
 	private JTextField tfDelayPerStage;
+	private JTextField tfSaveName;
 	private JButton bRandomCells;
 	private JLabel lblOfLive;
 	private JButton bEvolveOneStage;
@@ -28,9 +31,13 @@ public class GameWindow extends JPanel implements ActionListener{
 	private JButton bStop;
 	private JButton bClear;
 	private JButton bShowNeigbours;
+	private JButton bSave;
+	private JButton bLoad;
 	private JLabel lblStageDelaySeconds;
 	private JLabel lblStage;
 	private JLabel lblStageNr;
+	private JLabel lblSaveName;
+	private JComboBox<String> cbPresets;
 	
 	private boolean[][] cellArrayStatus = new boolean[50][50]; 
 	private int stage = 0;
@@ -39,8 +46,11 @@ public class GameWindow extends JPanel implements ActionListener{
 	private boolean evolving = false;
 	private boolean showNeigbourText = false;
 	private Color defaultButtonColor = new JButton().getBackground();
-	private int timeDelay = 2000;
+	private int timeDelay = 0;
 	private Timer evolveTimer = new Timer(timeDelay, new Blinker());
+	private final String[] comboContent = {"No Preset","Glider","Light spaceship"};
+	
+	private PresetHelper ph = new PresetHelper();
 	
 	public GameWindow() {
 		setupCellArray();
@@ -128,10 +138,35 @@ public class GameWindow extends JPanel implements ActionListener{
 		lblStageNr = new JLabel("0");
 		lblStageNr.setBounds(1126, 224, 46, 14);
 		add(lblStageNr);
+		
+		cbPresets = new JComboBox<String> (comboContent);
+		cbPresets.setToolTipText ("Choose preset");
+		cbPresets.setBounds(1069, 314, 121, 23);
+		add(cbPresets);
+		
+		bSave = new JButton("Save");
+		bSave.setBounds(1069, 344, 57, 23);
+		bSave.addActionListener(this);
+		bSave.setMargin(new Insets(0, 0, 0, 0));
+		add(bSave);
+		
+		bLoad = new JButton("Load");
+		bLoad.setBounds(1136, 344, 54, 23);
+		bLoad.addActionListener(this);
+		bLoad.setMargin(new Insets(0, 0, 0, 0));
+		add(bLoad);
+	
+		lblSaveName = new JLabel("Save/Load Name: ");
+		lblSaveName.setBounds(1070, 374, 120, 14);
+		add(lblSaveName);
+		
+		tfSaveName = new JTextField();
+		tfSaveName.setBounds(1070, 394, 120, 20);
+		add(tfSaveName);
+		tfSaveName.setColumns(10);
 	}
 	
 	public void evolveOneStage(){
-		long startTime = System.currentTimeMillis();
 		evolving = true;
 		int neigboursAm = 0;
 		boolean[][] tempArray = new boolean[50][50];
@@ -147,14 +182,12 @@ public class GameWindow extends JPanel implements ActionListener{
 				}else if(cellArrayStatus[i][r] && (neigboursAm == 2 || neigboursAm == 3)){
 					tempArray[i][r] = true;
 				}
-				neigboursAm = 0;
 			}
 		}
 		cellArrayStatus = tempArray;
 		stage++;
 		lblStageNr.setText(String.valueOf(stage));
 		updateBoard();
-		System.out.println("Time: "+(System.currentTimeMillis()-startTime));
 	}
 	
 	public int getNeigbours(int i, int r){
@@ -204,17 +237,37 @@ public class GameWindow extends JPanel implements ActionListener{
 	}
 	
 	public void start(){
+		enDisButtons(false);
 		evolveTimer.setDelay(Integer.parseInt(tfDelayPerStage.getText()));
 		evolveTimer.start();
 	}
 	
 	public void stop(){
+		enDisButtons(true);
 		evolveTimer.stop();
 	}
 	
+	public void enDisButtons(boolean b){
+		bRandomCells.setEnabled(b);
+		bEvolveOneStage.setEnabled(b);
+		bClear.setEnabled(b);
+		bSave.setEnabled(b);
+		bLoad.setEnabled(b);
+		cbPresets.setEnabled(b);
+	}
+	
+	private void loadFromTxt() {
+		cellArrayStatus = ph.loadPreset("/src/presetsTxtFiles/"+tfSaveName.getText()+".txt");
+		updateBoard();
+	}
+
+	private void saveToTxt() {
+		ph.savePreset(tfSaveName.getText(), cellArrayStatus);
+	}
+	
 	public void createRandomCells(){
+		clearBoard();
 		perLifeCells = Integer.parseInt(tfPercentageLifeCells.getText());
-		System.out.println(perLifeCells);
 		for(int i = 0; i<cellArrayStatus.length; i++){
 			for(int r = 0; r<cellArrayStatus[i].length; r++){
 				if(randomInteger(1, 100) <= perLifeCells){
@@ -234,6 +287,8 @@ public class GameWindow extends JPanel implements ActionListener{
 			}
 		}
 		evolving = false;
+		stage = 0;
+		lblStageNr.setText(String.valueOf(stage));
 		updateBoard();
 	}
 	
@@ -297,6 +352,10 @@ public class GameWindow extends JPanel implements ActionListener{
 			clearBoard();
 		}else if(e.getSource() == bShowNeigbours){
 			showNeigbours();
+		}else if(e.getSource() == bSave){
+			saveToTxt();
+		}else if(e.getSource() == bLoad){
+			loadFromTxt();
 		}else{
 			if(!evolving){
 				for(int i = 0; i<bCellArray.length; i++){
@@ -311,7 +370,7 @@ public class GameWindow extends JPanel implements ActionListener{
 			
 		}
 	}
-	
+
 	class Blinker implements ActionListener{
 		
         public void actionPerformed(ActionEvent e) {
