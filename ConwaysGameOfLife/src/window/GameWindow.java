@@ -12,6 +12,7 @@ import javax.swing.JTextField;
 import javax.swing.Timer;
 
 import presets.PresetHelper;
+import presets.PresetHelper.Direction;
 import window.GameWindow.Blinker;
 
 import javax.swing.JLabel;
@@ -33,10 +34,15 @@ public class GameWindow extends JPanel implements ActionListener{
 	private JButton bShowNeigbours;
 	private JButton bSave;
 	private JButton bLoad;
+	private JButton bRight;
+	private JButton bLeft;
+	private JButton bUp;
+	private JButton bDown;
 	private JLabel lblStageDelaySeconds;
 	private JLabel lblStage;
 	private JLabel lblStageNr;
 	private JLabel lblSaveName;
+	private JLabel lblShiftCellArray;
 	private JComboBox<String> cbPresets;
 	
 	private boolean[][] cellArrayStatus = new boolean[50][50]; 
@@ -48,7 +54,7 @@ public class GameWindow extends JPanel implements ActionListener{
 	private Color defaultButtonColor = new JButton().getBackground();
 	private int timeDelay = 0;
 	private Timer evolveTimer = new Timer(timeDelay, new Blinker());
-	private final String[] comboContent = {"No Preset","Glider","Light spaceship","Acorn","Pulsar","Glider Canon"};
+	private final String[] comboContent = {"No Preset","Glider","Light spaceship","Acorn","Pulsar","Glider Canon","One Wide Pattern"};
 	private String defPresetPath = "/src/presetsTxtFiles/";
 	
 	private PresetHelper ph = new PresetHelper();
@@ -158,6 +164,8 @@ public class GameWindow extends JPanel implements ActionListener{
             		cellArrayStatus = ph.loadPreset(defPresetPath+"pulsar.txt");
             	}else if(cbPresets.getItemAt(5) == cbPresets.getSelectedItem()){
             		cellArrayStatus = ph.loadPreset(defPresetPath+"gliderCanon.txt");
+            	}else if(cbPresets.getItemAt(6) == cbPresets.getSelectedItem()){
+            		cellArrayStatus = ph.loadPreset(defPresetPath+"oneWidePattern.txt");
             	}
             	updateBoard();
             }
@@ -183,6 +191,34 @@ public class GameWindow extends JPanel implements ActionListener{
 		tfSaveName.setBounds(1070, 394, 120, 20);
 		add(tfSaveName);
 		tfSaveName.setColumns(10);
+		
+		lblSaveName = new JLabel("Shift Cell Array: ");
+		lblSaveName.setBounds(1070, 424, 120, 14);
+		add(lblSaveName);
+		
+		bLeft = new JButton("Left");
+		bLeft.setBounds(1069, 444, 57, 23);
+		bLeft.addActionListener(this);
+		bLeft.setMargin(new Insets(0, 0, 0, 0));
+		add(bLeft);
+		
+		bRight = new JButton("Right");
+		bRight.setBounds(1136, 444, 54, 23);
+		bRight.addActionListener(this);
+		bRight.setMargin(new Insets(0, 0, 0, 0));
+		add(bRight);
+		
+		bUp = new JButton("Up");
+		bUp.setBounds(1069, 474, 57, 23);
+		bUp.addActionListener(this);
+		bUp.setMargin(new Insets(0, 0, 0, 0));
+		add(bUp);
+		
+		bDown = new JButton("Down");
+		bDown.setBounds(1136, 474, 54, 23);
+		bDown.addActionListener(this);
+		bDown.setMargin(new Insets(0, 0, 0, 0));
+		add(bDown);
 	}
 	
 	public void evolveOneStage(){
@@ -284,6 +320,11 @@ public class GameWindow extends JPanel implements ActionListener{
 		ph.savePreset(tfSaveName.getText(), cellArrayStatus);
 	}
 	
+	private void shiftArray(Direction di){
+		cellArrayStatus = ph.shiftArray(di, cellArrayStatus);
+		updateBoard();
+	}
+	
 	public void createRandomCells(){
 		clearBoard();
 		perLifeCells = Integer.parseInt(tfPercentageLifeCells.getText());
@@ -375,6 +416,14 @@ public class GameWindow extends JPanel implements ActionListener{
 			saveToTxt();
 		}else if(e.getSource() == bLoad){
 			loadFromTxt();
+		}else if(e.getSource() == bLeft){
+			shiftArray(Direction.LEFT);
+		}else if(e.getSource() == bRight){
+			shiftArray(Direction.RIGHT);
+		}else if(e.getSource() == bUp){
+			shiftArray(Direction.UP);
+		}else if(e.getSource() == bDown){
+			shiftArray(Direction.DOWN);
 		}else{
 			if(!evolving){
 				for(int i = 0; i<bCellArray.length; i++){
