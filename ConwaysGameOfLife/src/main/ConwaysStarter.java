@@ -11,6 +11,7 @@ public class ConwaysStarter {
 	public static void main(String[] args) {
 		JFrame frame = new JFrame ("Led");
         frame.setDefaultCloseOperation (JFrame.EXIT_ON_CLOSE);
+        frame.setResizable(false);
         frame.getContentPane().add (gw);
         frame.pack();
         frame.setVisible (true);

@@ -48,7 +48,8 @@ public class GameWindow extends JPanel implements ActionListener{
 	private Color defaultButtonColor = new JButton().getBackground();
 	private int timeDelay = 0;
 	private Timer evolveTimer = new Timer(timeDelay, new Blinker());
-	private final String[] comboContent = {"No Preset","Glider","Light spaceship"};
+	private final String[] comboContent = {"No Preset","Glider","Light spaceship","Acorn","Pulsar","Glider Canon"};
+	private String defPresetPath = "/src/presetsTxtFiles/";
 	
 	private PresetHelper ph = new PresetHelper();
 	
@@ -143,6 +144,24 @@ public class GameWindow extends JPanel implements ActionListener{
 		cbPresets.setToolTipText ("Choose preset");
 		cbPresets.setBounds(1069, 314, 121, 23);
 		add(cbPresets);
+		
+		cbPresets.addActionListener (new ActionListener () {
+            public void actionPerformed(ActionEvent e) {
+            	clearBoard();
+            	if(cbPresets.getItemAt(1) == cbPresets.getSelectedItem()){
+            		cellArrayStatus = ph.loadPreset(defPresetPath+"glider.txt");
+            	}else if(cbPresets.getItemAt(2) == cbPresets.getSelectedItem()){
+            		cellArrayStatus = ph.loadPreset(defPresetPath+"lightSpaceShip.txt");
+            	}else if(cbPresets.getItemAt(3) == cbPresets.getSelectedItem()){
+            		cellArrayStatus = ph.loadPreset(defPresetPath+"acorn.txt");
+            	}else if(cbPresets.getItemAt(4) == cbPresets.getSelectedItem()){
+            		cellArrayStatus = ph.loadPreset(defPresetPath+"pulsar.txt");
+            	}else if(cbPresets.getItemAt(5) == cbPresets.getSelectedItem()){
+            		cellArrayStatus = ph.loadPreset(defPresetPath+"gliderCanon.txt");
+            	}
+            	updateBoard();
+            }
+		});
 		
 		bSave = new JButton("Save");
 		bSave.setBounds(1069, 344, 57, 23);
@@ -257,7 +276,7 @@ public class GameWindow extends JPanel implements ActionListener{
 	}
 	
 	private void loadFromTxt() {
-		cellArrayStatus = ph.loadPreset("/src/presetsTxtFiles/"+tfSaveName.getText()+".txt");
+		cellArrayStatus = ph.loadPreset(defPresetPath+tfSaveName.getText()+".txt");
 		updateBoard();
 	}
 
