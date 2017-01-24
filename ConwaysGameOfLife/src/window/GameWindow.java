@@ -16,7 +16,6 @@ import javax.swing.Timer;
 
 import presets.PresetHelper;
 import presets.PresetHelper.Direction;
-import window.GameWindow.Blinker;
 
 import javax.swing.JLabel;
 import java.awt.event.ActionListener;
@@ -50,7 +49,7 @@ public class GameWindow extends JPanel implements ActionListener{
 	private JLabel lblShiftCellArray;
 	private JComboBox<String> cbPresets;
 	
-	private boolean[][] cellArrayStatus = new boolean[50][50]; 
+	private boolean[][] cellArrayStatus = new boolean[bCellArray.length][bCellArray[0].length]; 
 	private int stage = 0;
 	private int perLifeCells;
 	private int delayPerStage;
@@ -58,7 +57,7 @@ public class GameWindow extends JPanel implements ActionListener{
 	private boolean showNeigbourText = false;
 	private Color defaultButtonColor = new JButton().getBackground();
 	private int timeDelay = 0;
-	private Timer evolveTimer = new Timer(timeDelay, new Blinker());
+	private Timer evolveTimer = new Timer(timeDelay, new EvolveTimer());
 	private final String[] comboContent = {"No Preset","Glider","Light spaceship","Acorn","Pulsar","Glider Canon","One Wide Pattern"};
 	private String defPresetPath = "/src/presetsTxtFiles/";
 	
@@ -79,7 +78,7 @@ public class GameWindow extends JPanel implements ActionListener{
         requestFocusInWindow();
 	}
 	
-	public void setupCellArray(){
+	private void setupCellArray(){
 		int scale = 20;
 		int width = 20;
 		int height = 20;
@@ -97,7 +96,7 @@ public class GameWindow extends JPanel implements ActionListener{
 		}
 	}
 	
-	public void setupOptions(){
+	private void setupOptions(){
 		bRandomCells = new JButton("Random Cells");
 		bRandomCells.setBounds(1070, 11, 120, 23);
 		bRandomCells.addActionListener(this);
@@ -235,7 +234,7 @@ public class GameWindow extends JPanel implements ActionListener{
 		add(bDown);
 	}
 	
-	public void setupKeyBindings(){
+	private void setupKeyBindings(){
 		leftArrowAction = new ArrowAction("LEFT");
 		getInputMap(WHEN_IN_FOCUSED_WINDOW).put( KeyStroke.getKeyStroke("LEFT"), "doLeftArrowAction" );
 		getActionMap().put( "doLeftArrowAction", leftArrowAction );
@@ -253,10 +252,9 @@ public class GameWindow extends JPanel implements ActionListener{
 		getActionMap().put( "doDownArrowAction", downArrowAction );
 	}
 	
-	public void evolveOneStage(){
-		evolving = true;
+	private void evolveOneStage(){
 		int neigboursAm = 0;
-		boolean[][] tempArray = new boolean[50][50];
+		boolean[][] tempArray = new boolean[cellArrayStatus.length][cellArrayStatus[0].length];
 		for(int i = 0; i<cellArrayStatus.length; i++){
 			for(int r = 0; r<cellArrayStatus[i].length; r++){
 				neigboursAm = getNeigbours(i, r);
@@ -277,7 +275,7 @@ public class GameWindow extends JPanel implements ActionListener{
 		updateBoard();
 	}
 	
-	public int getNeigbours(int i, int r){
+	private int getNeigbours(int i, int r){
 		int am = 0;
 		int le = cellArrayStatus.length;
 		if(i-1 >= 0 && r-1 >= 0){
@@ -323,24 +321,30 @@ public class GameWindow extends JPanel implements ActionListener{
 		return am;
 	}
 	
-	public void start(){
+	private void start(){
+		evolving = true;
 		enDisButtons(false);
 		evolveTimer.setDelay(Integer.parseInt(tfDelayPerStage.getText()));
 		evolveTimer.start();
 	}
 	
-	public void stop(){
+	private void stop(){
+		evolving = false;
 		enDisButtons(true);
 		evolveTimer.stop();
 	}
 	
-	public void enDisButtons(boolean b){
+	private void enDisButtons(boolean b){
 		bRandomCells.setEnabled(b);
 		bEvolveOneStage.setEnabled(b);
 		bClear.setEnabled(b);
 		bSave.setEnabled(b);
 		bLoad.setEnabled(b);
 		cbPresets.setEnabled(b);
+		bLeft.setEnabled(b);
+		bRight.setEnabled(b);
+		bUp.setEnabled(b);
+		bDown.setEnabled(b);
 	}
 	
 	private void loadFromTxt() {
@@ -357,7 +361,7 @@ public class GameWindow extends JPanel implements ActionListener{
 		updateBoard();
 	}
 	
-	public void createRandomCells(){
+	private void createRandomCells(){
 		clearBoard();
 		perLifeCells = Integer.parseInt(tfPercentageLifeCells.getText());
 		for(int i = 0; i<cellArrayStatus.length; i++){
@@ -372,7 +376,7 @@ public class GameWindow extends JPanel implements ActionListener{
 		updateBoard();
 	}
 	
-	public void clearBoard(){
+	private void clearBoard(){
 		for(int i = 0; i<cellArrayStatus.length; i++){
 			for(int r = 0; r<cellArrayStatus[i].length; r++){
 				cellArrayStatus[i][r] = false;
@@ -384,7 +388,7 @@ public class GameWindow extends JPanel implements ActionListener{
 		updateBoard();
 	}
 	
-	public void showNeigbours(){
+	private void showNeigbours(){
 		showNeigbourText = !showNeigbourText;
 		if(showNeigbourText){
 			updateNeigbourText();
@@ -397,7 +401,7 @@ public class GameWindow extends JPanel implements ActionListener{
 		}
 	}
 	
-	public void updateNeigbourText(){
+	private void updateNeigbourText(){
 		for(int i = 0; i<bCellArray.length; i++){
 			for(int r = 0; r<bCellArray[0].length; r++){
 				if(cellArrayStatus[i][r]){
@@ -411,7 +415,7 @@ public class GameWindow extends JPanel implements ActionListener{
 		}
 	}
 	
-	public void updateBoard(){
+	private void updateBoard(){
 		for(int i = 0; i<bCellArray.length; i++){
 			for(int r = 0; r<bCellArray[0].length; r++){
 				if(cellArrayStatus[i][r]){
@@ -426,7 +430,7 @@ public class GameWindow extends JPanel implements ActionListener{
 		}
 	}
 
-	public int randomInteger(int min, int max){						//Random integer between min max
+	private int randomInteger(int min, int max){						//Random integer between min max
 		return min + (int)(Math.random() * ((max - min) + 1));
 	}
 	
@@ -471,14 +475,14 @@ public class GameWindow extends JPanel implements ActionListener{
 		}
 	}
 
-	class Blinker implements ActionListener{
+	private class EvolveTimer implements ActionListener{
 		
         public void actionPerformed(ActionEvent e) {
         	evolveOneStage();
         }
     }
 	
-	class ArrowAction extends AbstractAction
+	private class ArrowAction extends AbstractAction
     {
 		String name;
 		
@@ -488,14 +492,16 @@ public class GameWindow extends JPanel implements ActionListener{
 		
         public void actionPerformed( ActionEvent tf )
         {
-          if(name == "LEFT"){
-        	  shiftArray(Direction.LEFT);
-          }else if(name == "RIGHT"){
-        	  shiftArray(Direction.RIGHT);
-          }else if(name == "UP"){
-        	  shiftArray(Direction.UP);
-          }else if(name == "DOWN"){
-        	  shiftArray(Direction.DOWN);
+          if(!evolving){
+        	  if(name == "LEFT"){
+            	  shiftArray(Direction.LEFT);
+              }else if(name == "RIGHT"){
+            	  shiftArray(Direction.RIGHT);
+              }else if(name == "UP"){
+            	  shiftArray(Direction.UP);
+              }else if(name == "DOWN"){
+            	  shiftArray(Direction.DOWN);
+              }
           }
             
         }

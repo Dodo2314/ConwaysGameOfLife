@@ -22,7 +22,7 @@ public class PresetHelper {
 	}
 	
 	public void savePreset(String path, boolean[][] set){
-		String[] writeArray = new String[50];
+		String[] writeArray = new String[set.length];
 		Arrays.fill(writeArray, "2");
 		for(int i = 0; i<set.length; i++){
 			for(int r = 0; r<set[i].length; r++){
@@ -42,12 +42,6 @@ public class PresetHelper {
 			}
 		}
 		rwt.writeLineArray("/src/presetsTxtFiles/"+path+".txt", writeArray, true);
-	}
-	
-	public void shiftPattern(Direction di, String patternName){
-		if(di == Direction.UP){
-			
-		}
 	}
 	
 	public boolean[][] shiftArray(Direction di, boolean[][] set){
