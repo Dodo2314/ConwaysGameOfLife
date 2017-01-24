@@ -6,9 +6,12 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Insets;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.Timer;
 
 import presets.PresetHelper;
@@ -17,6 +20,8 @@ import window.GameWindow.Blinker;
 
 import javax.swing.JLabel;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.ActionEvent;
 
 public class GameWindow extends JPanel implements ActionListener{
@@ -59,11 +64,19 @@ public class GameWindow extends JPanel implements ActionListener{
 	
 	private PresetHelper ph = new PresetHelper();
 	
+	private Action leftArrowAction;
+	private Action rightArrowAction;
+	private Action upArrowAction;
+	private Action downArrowAction;
+	
 	public GameWindow() {
 		setupCellArray();
 		setupOptions();
+		setupKeyBindings();
 		setPreferredSize (new Dimension (1200, 1000));
 		setLayout(null);
+		setFocusable(true);
+        requestFocusInWindow();
 	}
 	
 	public void setupCellArray(){
@@ -168,6 +181,7 @@ public class GameWindow extends JPanel implements ActionListener{
             		cellArrayStatus = ph.loadPreset(defPresetPath+"oneWidePattern.txt");
             	}
             	updateBoard();
+            	cbPresets.transferFocus();
             }
 		});
 		
@@ -219,6 +233,24 @@ public class GameWindow extends JPanel implements ActionListener{
 		bDown.addActionListener(this);
 		bDown.setMargin(new Insets(0, 0, 0, 0));
 		add(bDown);
+	}
+	
+	public void setupKeyBindings(){
+		leftArrowAction = new ArrowAction("LEFT");
+		getInputMap(WHEN_IN_FOCUSED_WINDOW).put( KeyStroke.getKeyStroke("LEFT"), "doLeftArrowAction" );
+		getActionMap().put( "doLeftArrowAction", leftArrowAction );
+		
+		rightArrowAction = new ArrowAction("RIGHT");
+		getInputMap(WHEN_IN_FOCUSED_WINDOW).put( KeyStroke.getKeyStroke("RIGHT"), "doRightArrowAction" );
+		getActionMap().put( "doRightArrowAction", rightArrowAction );
+
+		upArrowAction = new ArrowAction("UP");
+		getInputMap(WHEN_IN_FOCUSED_WINDOW).put( KeyStroke.getKeyStroke("UP"), "doUpArrowAction" );
+		getActionMap().put( "doUpArrowAction", upArrowAction );
+		
+		downArrowAction = new ArrowAction("DOWN");
+		getInputMap(WHEN_IN_FOCUSED_WINDOW).put( KeyStroke.getKeyStroke("DOWN"), "doDownArrowAction" );
+		getActionMap().put( "doDownArrowAction", downArrowAction );
 	}
 	
 	public void evolveOneStage(){
@@ -444,5 +476,29 @@ public class GameWindow extends JPanel implements ActionListener{
         public void actionPerformed(ActionEvent e) {
         	evolveOneStage();
         }
+    }
+	
+	class ArrowAction extends AbstractAction
+    {
+		String name;
+		
+		public ArrowAction(String name){
+			this.name = name;
+		}
+		
+        public void actionPerformed( ActionEvent tf )
+        {
+          if(name == "LEFT"){
+        	  shiftArray(Direction.LEFT);
+          }else if(name == "RIGHT"){
+        	  shiftArray(Direction.RIGHT);
+          }else if(name == "UP"){
+        	  shiftArray(Direction.UP);
+          }else if(name == "DOWN"){
+        	  shiftArray(Direction.DOWN);
+          }
+            
+        }
+        
     }
 }
