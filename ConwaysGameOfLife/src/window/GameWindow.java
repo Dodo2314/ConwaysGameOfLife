@@ -19,11 +19,14 @@ import javax.swing.Timer;
 
 import presets.PresetHelper;
 import presets.PresetHelper.Direction;
+import utilities.NumberChecker;
+import utilities.NumberChecker.TextFieldNumberErrors;
 
 import javax.swing.JLabel;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.Arrays;
 import java.awt.event.ActionEvent;
 
 public class GameWindow extends JPanel implements ActionListener{
@@ -68,6 +71,7 @@ public class GameWindow extends JPanel implements ActionListener{
 	private String defPresetPath = "/src/presetsTxtFiles/";
 	
 	private PresetHelper ph = new PresetHelper();
+	private NumberChecker nc = new NumberChecker();
 	
 	private Action leftArrowAction;
 	private Action rightArrowAction;
@@ -300,6 +304,30 @@ public class GameWindow extends JPanel implements ActionListener{
 		updateBoard();
 	}
 	
+	private void evolveStages(int num){
+		for(int i = 0; i<num; i++){
+			evolveOneStage();
+		}
+	}
+	
+	private void evolveStages(String command){
+		System.out.println(Arrays.toString(command.split(" ")));
+		TextFieldNumberErrors check = nc.isIntegerInRange(command.split(" ")[0], 1);
+		if(check == TextFieldNumberErrors.IS_NUMBER_IN_RANGE){
+			int num = Integer.parseInt(command.split(" ")[0]);
+			for(int i = 0; i<num; i++){
+				evolveOneStage();
+			}
+		}else{									;
+			if(check == TextFieldNumberErrors.NOT_A_NUMBER){
+				addTa("Command is evolve num num \nhas to be an Integer");
+			}else if(check == TextFieldNumberErrors.NUMBER_NOT_IN_RANGE){
+				addTa("Number in evolve num has \nto be greater than 0");
+			}
+		}
+		
+	}
+	
 	private int getNeigbours(int i, int r){
 		int am = 0;
 		int le = cellArrayStatus.length;
@@ -347,10 +375,19 @@ public class GameWindow extends JPanel implements ActionListener{
 	}
 	
 	private void start(){
-		evolving = true;
-		enDisButtons(false);
-		evolveTimer.setDelay(Integer.parseInt(tfDelayPerStage.getText()));
-		evolveTimer.start();
+		TextFieldNumberErrors check = nc.isIntegerInRange(tfDelayPerStage.getText(), 1);
+		if(check == TextFieldNumberErrors.IS_NUMBER_IN_RANGE){
+			evolving = true;
+			enDisButtons(false);
+			evolveTimer.setDelay(Integer.parseInt(tfDelayPerStage.getText()));
+			evolveTimer.start();
+		}else{									;
+			if(check == TextFieldNumberErrors.NOT_A_NUMBER){
+				addTa("Text in delay text field \nhas to be an number.");
+			}else if(check == TextFieldNumberErrors.NUMBER_NOT_IN_RANGE){
+				addTa("Number in delay text field \nhas to be greater than 0");
+			}
+		}
 	}
 	
 	private void stop(){
@@ -387,18 +424,27 @@ public class GameWindow extends JPanel implements ActionListener{
 	}
 	
 	private void createRandomCells(){
-		clearBoard();
-		perLifeCells = Integer.parseInt(tfPercentageLifeCells.getText());
-		for(int i = 0; i<cellArrayStatus.length; i++){
-			for(int r = 0; r<cellArrayStatus[i].length; r++){
-				if(randomInteger(1, 100) <= perLifeCells){
-					cellArrayStatus[i][r] = true;
-				}else{
-					cellArrayStatus[i][r] = false;
+		TextFieldNumberErrors check = nc.isIntegerInRange(tfDelayPerStage.getText(), 0, 100);
+		if(check == TextFieldNumberErrors.IS_NUMBER_IN_RANGE){
+			clearBoard();
+			perLifeCells = Integer.parseInt(tfPercentageLifeCells.getText());
+			for(int i = 0; i<cellArrayStatus.length; i++){
+				for(int r = 0; r<cellArrayStatus[i].length; r++){
+					if(randomInteger(1, 100) <= perLifeCells){
+						cellArrayStatus[i][r] = true;
+					}else{
+						cellArrayStatus[i][r] = false;
+					}
 				}
 			}
+			updateBoard();
+		}else{									;
+			if(check == TextFieldNumberErrors.NOT_A_NUMBER){
+				addTa("Text in delay text field \nhas to be an number.");
+			}else if(check == TextFieldNumberErrors.NUMBER_NOT_IN_RANGE){
+				addTa("Number in delay text field \nhas to be between 0 and 100");
+			}
 		}
-		updateBoard();
 	}
 	
 	private void clearBoard(){
@@ -466,6 +512,8 @@ public class GameWindow extends JPanel implements ActionListener{
 			showAllConsoleCommands();
 		}else if(command.equals("clear")){
 			taConsoleOut.setText("");
+		}else if(command.contains("evolve")){
+			evolveStages(command.split(" ")[1]);
 		}else{
 			addTa("Unknown Command");
 		}
@@ -474,6 +522,7 @@ public class GameWindow extends JPanel implements ActionListener{
 	private void showAllConsoleCommands(){
 		addTa("Commands: ");
 		addTa("clear (Clears console)");
+		addTa("evolve num (evolves num stages num > 0)");
 	}
 	
 	private void addTa(String line){
