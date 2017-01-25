@@ -1,6 +1,9 @@
 package window;
 
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -48,6 +51,9 @@ public class GameWindow extends JPanel implements ActionListener{
 	private JLabel lblSaveName;
 	private JLabel lblShiftCellArray;
 	private JComboBox<String> cbPresets;
+	private JTextArea taConsoleOut;
+	private JScrollPane scConsoleScroll;
+	private JTextField tfConsoleIn;
 	
 	private boolean[][] cellArrayStatus = new boolean[bCellArray.length][bCellArray[0].length]; 
 	private int stage = 0;
@@ -68,9 +74,12 @@ public class GameWindow extends JPanel implements ActionListener{
 	private Action upArrowAction;
 	private Action downArrowAction;
 	
+	private Action enterConsoleInAction;
+	
 	public GameWindow() {
 		setupCellArray();
 		setupOptions();
+		setupConsole();
 		setupKeyBindings();
 		setPreferredSize (new Dimension (1200, 1000));
 		setLayout(null);
@@ -234,6 +243,18 @@ public class GameWindow extends JPanel implements ActionListener{
 		add(bDown);
 	}
 	
+	private void setupConsole(){
+		taConsoleOut = new JTextArea(0, 0);
+		taConsoleOut.setEditable(false);
+		scConsoleScroll = new JScrollPane(taConsoleOut);
+		scConsoleScroll.setBounds(1010, 800, 180, 150);
+		add(scConsoleScroll);
+		
+		tfConsoleIn = new JTextField();
+		tfConsoleIn.setBounds(1010, 955, 180, 20);
+		add(tfConsoleIn);
+	}
+	
 	private void setupKeyBindings(){
 		leftArrowAction = new ArrowAction("LEFT");
 		getInputMap(WHEN_IN_FOCUSED_WINDOW).put( KeyStroke.getKeyStroke("LEFT"), "doLeftArrowAction" );
@@ -250,6 +271,10 @@ public class GameWindow extends JPanel implements ActionListener{
 		downArrowAction = new ArrowAction("DOWN");
 		getInputMap(WHEN_IN_FOCUSED_WINDOW).put( KeyStroke.getKeyStroke("DOWN"), "doDownArrowAction" );
 		getActionMap().put( "doDownArrowAction", downArrowAction );
+		
+		enterConsoleInAction = new ConsoleAction("ENTER_CONSOLE");
+		tfConsoleIn.getInputMap().put( KeyStroke.getKeyStroke("ENTER"), "doEnterConsoleInAction" );
+		tfConsoleIn.getActionMap().put( "doEnterConsoleInAction", enterConsoleInAction );
 	}
 	
 	private void evolveOneStage(){
@@ -434,6 +459,27 @@ public class GameWindow extends JPanel implements ActionListener{
 		return min + (int)(Math.random() * ((max - min) + 1));
 	}
 	
+	private void processConsoleCommand(String command){
+		System.out.println(command);
+		if(command.equals("help")){
+			System.out.println("im");
+			showAllConsoleCommands();
+		}else if(command.equals("clear")){
+			taConsoleOut.setText("");
+		}else{
+			addTa("Unknown Command");
+		}
+	}
+	
+	private void showAllConsoleCommands(){
+		addTa("Commands: ");
+		addTa("clear (Clears console)");
+	}
+	
+	private void addTa(String line){
+		taConsoleOut.append(line+"\n");
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource() == bStart){
@@ -504,6 +550,22 @@ public class GameWindow extends JPanel implements ActionListener{
               }
           }
             
+        }
+        
+    }
+	
+	private class ConsoleAction extends AbstractAction
+    {
+		String name;
+		
+		public ConsoleAction(String name){
+			this.name = name;
+		}
+		
+        public void actionPerformed( ActionEvent tf )
+        {
+            processConsoleCommand(tfConsoleIn.getText());
+            tfConsoleIn.setText("");
         }
         
     }
