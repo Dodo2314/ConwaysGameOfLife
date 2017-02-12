@@ -424,7 +424,7 @@ public class GameWindow extends JPanel implements ActionListener{
 	}
 	
 	private void createRandomCells(){
-		TextFieldNumberErrors check = nc.isIntegerInRange(tfDelayPerStage.getText(), 0, 100);
+		TextFieldNumberErrors check = nc.isIntegerInRange(tfPercentageLifeCells.getText(), 0, 100);
 		if(check == TextFieldNumberErrors.IS_NUMBER_IN_RANGE){
 			clearBoard();
 			perLifeCells = Integer.parseInt(tfPercentageLifeCells.getText());
@@ -473,15 +473,28 @@ public class GameWindow extends JPanel implements ActionListener{
 	}
 	
 	private void updateNeigbourText(){
+		int curNei = 0;
 		for(int i = 0; i<bCellArray.length; i++){
 			for(int r = 0; r<bCellArray[0].length; r++){
+				curNei = getNeigbours(i, r);
 				if(cellArrayStatus[i][r]){
-					bCellArray[i][r].setForeground(Color.WHITE);
-					bCellArray[i][r].setText(String.valueOf(getNeigbours(i, r)));
+					if(curNei < 2 || curNei > 3){
+						bCellArray[i][r].setForeground(Color.RED);
+						bCellArray[i][r].setText(String.valueOf(curNei));
+					}else{
+						bCellArray[i][r].setForeground(Color.WHITE);
+						bCellArray[i][r].setText(String.valueOf(curNei));
+					}
 				}else{
-					bCellArray[i][r].setForeground(Color.BLACK);
-					bCellArray[i][r].setText(String.valueOf(getNeigbours(i, r)));
+					if(curNei == 3){
+						bCellArray[i][r].setForeground(Color.GREEN);
+						bCellArray[i][r].setText(String.valueOf(curNei));
+					}else{
+						bCellArray[i][r].setForeground(Color.BLACK);
+						bCellArray[i][r].setText(String.valueOf(curNei));
+					}
 				}
+				
 			}
 		}
 	}
