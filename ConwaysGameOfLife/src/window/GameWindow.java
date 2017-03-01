@@ -504,7 +504,6 @@ public class GameWindow extends JPanel implements ActionListener{
 	private void processConsoleCommand(String command){
 		System.out.println(command);
 		if(command.equals("help")){
-			System.out.println("im");
 			showAllConsoleCommands();
 		}else if(command.equals("clear")){
 			clearConsole();
