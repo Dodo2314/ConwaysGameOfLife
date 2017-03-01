@@ -88,7 +88,6 @@ public class GameWindow extends JPanel implements ActionListener{
 		setPreferredSize (new Dimension (1200, 1000));
 		setLayout(null);
 		setFocusable(true);
-        requestFocusInWindow();
 	}
 	
 	private void setupCellArray(){
@@ -311,13 +310,10 @@ public class GameWindow extends JPanel implements ActionListener{
 	}
 	
 	private void evolveStages(String command){
-		System.out.println(Arrays.toString(command.split(" ")));
-		TextFieldNumberErrors check = nc.isIntegerInRange(command.split(" ")[0], 1);
+		TextFieldNumberErrors check = nc.isIntegerInRange(command, 1);
 		if(check == TextFieldNumberErrors.IS_NUMBER_IN_RANGE){
-			int num = Integer.parseInt(command.split(" ")[0]);
-			for(int i = 0; i<num; i++){
-				evolveOneStage();
-			}
+			int num = Integer.parseInt(command);
+			evolveStages(num);
 		}else{									;
 			if(check == TextFieldNumberErrors.NOT_A_NUMBER){
 				addTa("Command is evolve num num \nhas to be an Integer");
@@ -424,7 +420,7 @@ public class GameWindow extends JPanel implements ActionListener{
 	}
 	
 	private void createRandomCells(){
-		TextFieldNumberErrors check = nc.isIntegerInRange(tfDelayPerStage.getText(), 0, 100);
+		TextFieldNumberErrors check = nc.isIntegerInRange(tfPercentageLifeCells.getText(), 0, 100);
 		if(check == TextFieldNumberErrors.IS_NUMBER_IN_RANGE){
 			clearBoard();
 			perLifeCells = Integer.parseInt(tfPercentageLifeCells.getText());
@@ -511,9 +507,13 @@ public class GameWindow extends JPanel implements ActionListener{
 			System.out.println("im");
 			showAllConsoleCommands();
 		}else if(command.equals("clear")){
-			taConsoleOut.setText("");
+			clearConsole();
 		}else if(command.contains("evolve")){
 			evolveStages(command.split(" ")[1]);
+		}else if(command.equals("keyBindings")){
+			showAllKeyBindings();
+		}else if(command.equals("showSavedPresets")){
+			showSavedPresets();
 		}else{
 			addTa("Unknown Command");
 		}
@@ -522,7 +522,25 @@ public class GameWindow extends JPanel implements ActionListener{
 	private void showAllConsoleCommands(){
 		addTa("Commands: ");
 		addTa("clear (Clears console)");
-		addTa("evolve num (evolves num stages num > 0)");
+		addTa("evolve num (evolves num \nstages num > 0)");
+		addTa("keyBindings (show keybindings)");
+		addTa("showSavedPresets");
+	}
+	
+	private void showAllKeyBindings(){
+		addTa("Use arrow keys to shift map");
+	}
+	
+	private void clearConsole(){
+		taConsoleOut.setText("");
+	}
+	
+	private void showSavedPresets(){
+		String[] names = ph.getPresetNames();
+		addTa("");
+		for(int i = 0; i<names.length; i++){
+			addTa(names[i]);
+		}
 	}
 	
 	private void addTa(String line){

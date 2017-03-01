@@ -1,5 +1,6 @@
 package presets;
 
+import java.io.File;
 import java.util.Arrays;
 
 public class PresetHelper {
@@ -42,6 +43,21 @@ public class PresetHelper {
 			}
 		}
 		rwt.writeLineArray("/src/presetsTxtFiles/"+path+".txt", writeArray, true);
+	}
+	
+	public String[] getPresetNames(){
+		String workingDir = System.getProperty("user.dir");
+		String[] names = new String[new File(workingDir+"/src/presetsTxtFiles/").list().length];
+		File folder = new File(workingDir+"/src/presetsTxtFiles/");
+		File[] listOfFiles = folder.listFiles();
+		int i = 0;
+		for (File file : listOfFiles) {
+		    if (file.isFile()) {
+		        names[i] = file.getName().substring(0, file.getName().length()-4);
+		        i++;
+		    }
+		}
+		return names;
 	}
 	
 	public boolean[][] shiftArray(Direction di, boolean[][] set){
