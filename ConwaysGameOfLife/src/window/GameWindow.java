@@ -2,7 +2,6 @@ package window;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 
 import java.awt.Color;
@@ -24,9 +23,6 @@ import utilities.NumberChecker.TextFieldNumberErrors;
 
 import javax.swing.JLabel;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.util.Arrays;
 import java.awt.event.ActionEvent;
 
 public class GameWindow extends JPanel implements ActionListener{
@@ -399,6 +395,7 @@ public class GameWindow extends JPanel implements ActionListener{
 	}
 
 	private void saveToTxt() {
+		cbPresets.addItem(tfSaveName.getText());
 		ph.savePreset(tfSaveName.getText(), cellArrayStatus);
 	}
 	
