@@ -58,6 +58,9 @@ public class GameWindow extends JPanel implements ActionListener{
 	private JScrollPane scConsoleScroll;
 	private JTextField tfConsoleIn;
 	
+	private PresetHelper ph = new PresetHelper();
+	private NumberChecker nc = new NumberChecker();
+	
 	private boolean[][] cellArrayStatus = new boolean[bCellArray.length][bCellArray[0].length]; 
 	private int stage = 0;
 	private int perLifeCells;
@@ -67,11 +70,8 @@ public class GameWindow extends JPanel implements ActionListener{
 	private Color defaultButtonColor = new JButton().getBackground();
 	private int timeDelay = 0;
 	private Timer evolveTimer = new Timer(timeDelay, new EvolveTimer());
-	private final String[] comboContent = {"No Preset","Glider","Light spaceship","Acorn","Pulsar","Glider Canon","One Wide Pattern"};
+	private final String[] comboContent = ph.getPresetNames();
 	private String defPresetPath = "/src/presetsTxtFiles/";
-	
-	private PresetHelper ph = new PresetHelper();
-	private NumberChecker nc = new NumberChecker();
 	
 	private Action leftArrowAction;
 	private Action rightArrowAction;
@@ -178,19 +178,7 @@ public class GameWindow extends JPanel implements ActionListener{
 		cbPresets.addActionListener (new ActionListener () {
             public void actionPerformed(ActionEvent e) {
             	clearBoard();
-            	if(cbPresets.getItemAt(1) == cbPresets.getSelectedItem()){
-            		cellArrayStatus = ph.loadPreset(defPresetPath+"glider.txt");
-            	}else if(cbPresets.getItemAt(2) == cbPresets.getSelectedItem()){
-            		cellArrayStatus = ph.loadPreset(defPresetPath+"lightSpaceShip.txt");
-            	}else if(cbPresets.getItemAt(3) == cbPresets.getSelectedItem()){
-            		cellArrayStatus = ph.loadPreset(defPresetPath+"acorn.txt");
-            	}else if(cbPresets.getItemAt(4) == cbPresets.getSelectedItem()){
-            		cellArrayStatus = ph.loadPreset(defPresetPath+"pulsar.txt");
-            	}else if(cbPresets.getItemAt(5) == cbPresets.getSelectedItem()){
-            		cellArrayStatus = ph.loadPreset(defPresetPath+"gliderCanon.txt");
-            	}else if(cbPresets.getItemAt(6) == cbPresets.getSelectedItem()){
-            		cellArrayStatus = ph.loadPreset(defPresetPath+"oneWidePattern.txt");
-            	}
+            	cellArrayStatus = ph.loadPreset(defPresetPath+cbPresets.getSelectedItem().toString()+".txt");
             	updateBoard();
             	cbPresets.transferFocus();
             }
