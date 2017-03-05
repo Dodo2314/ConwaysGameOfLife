@@ -469,15 +469,28 @@ public class GameWindow extends JPanel implements ActionListener{
 	}
 	
 	private void updateNeigbourText(){
+		int curNei = 0;
 		for(int i = 0; i<bCellArray.length; i++){
 			for(int r = 0; r<bCellArray[0].length; r++){
+				curNei = getNeigbours(i, r);
 				if(cellArrayStatus[i][r]){
-					bCellArray[i][r].setForeground(Color.WHITE);
-					bCellArray[i][r].setText(String.valueOf(getNeigbours(i, r)));
+					if(curNei < 2 || curNei > 3){
+						bCellArray[i][r].setForeground(Color.RED);
+						bCellArray[i][r].setText(String.valueOf(curNei));
+					}else{
+						bCellArray[i][r].setForeground(Color.WHITE);
+						bCellArray[i][r].setText(String.valueOf(curNei));
+					}
 				}else{
-					bCellArray[i][r].setForeground(Color.BLACK);
-					bCellArray[i][r].setText(String.valueOf(getNeigbours(i, r)));
+					if(curNei == 3){
+						bCellArray[i][r].setForeground(Color.GREEN);
+						bCellArray[i][r].setText(String.valueOf(curNei));
+					}else{
+						bCellArray[i][r].setForeground(Color.BLACK);
+						bCellArray[i][r].setText(String.valueOf(curNei));
+					}
 				}
+				
 			}
 		}
 	}
