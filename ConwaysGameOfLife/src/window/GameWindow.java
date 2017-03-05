@@ -1,5 +1,10 @@
 package window;
 
+
+/*
+ * Conways Game of Life
+ * By Dodo2314
+ */
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
